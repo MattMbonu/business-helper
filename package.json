@@ -2,7 +2,7 @@
   "name": "business-assistant-server",
   "version": "1.0.0",
   "description": "a lightweight server for business terrritories",
-  "main": "index.js",
+  "main": "build/index.js",
   "scripts": {
     "test": "test",
     "start": "node build/index.js",
