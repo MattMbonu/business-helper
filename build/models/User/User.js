@@ -22,6 +22,7 @@ var userSchema = new mongoose_1.Schema({
         default: "user",
         enum: ["user", "admin", "root"],
     },
+    date: { type: String, required: true, default: Date.now() },
 });
 userSchema.plugin(mongoose_unique_validator_1.default);
 exports.default = mongoose_1.default.model("User", userSchema);

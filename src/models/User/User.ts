@@ -11,6 +11,7 @@ const userSchema = new Schema({
     default: "user",
     enum: ["user", "admin", "root"],
   },
+  date: { type: String, required: true, default: Date.now() },
 });
 
 userSchema.plugin(uniqueValidator);
