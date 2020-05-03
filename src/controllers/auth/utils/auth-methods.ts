@@ -9,3 +9,15 @@ export const hashPassword = async (password: string): Promise<string> => {
     throw new Error("Something went wrong");
   }
 };
+
+export const comparePassword = async (
+  password: string,
+  userPassword: string
+): Promise<boolean> => {
+  try {
+    const isMatch = await bcrypt.compare(password, userPassword);
+    return isMatch;
+  } catch (error) {
+    throw new Error("Something went wrong");
+  }
+};

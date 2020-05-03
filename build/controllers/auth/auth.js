@@ -39,39 +39,69 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 var User_1 = __importDefault(require("../../models/User/User"));
+var helperMethods_1 = require("../utils/helperMethods");
 var HttpError_1 = __importDefault(require("../../models/HttpError/HttpError"));
 var auth_methods_1 = require("./utils/auth-methods");
-exports.signupUser = function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
-    var _a, name, email, password, user, hashedPassword, error_1;
+exports.signupUser = helperMethods_1.errorWrapper(function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, name, email, password, user, hashedPassword, payload;
     return __generator(this, function (_b) {
         switch (_b.label) {
             case 0:
                 _a = req.body, name = _a.name, email = _a.email, password = _a.password;
-                _b.label = 1;
-            case 1:
-                _b.trys.push([1, 5, , 6]);
                 return [4 /*yield*/, User_1.default.findOne({ email: email })];
-            case 2:
+            case 1:
                 // Ensure no duplicates
                 user = _b.sent();
                 if (user) {
                     return [2 /*return*/, res.status(400).json({ errors: [{ msg: "User already exists" }] })];
                 }
                 return [4 /*yield*/, auth_methods_1.hashPassword(password)];
-            case 3:
+            case 2:
                 hashedPassword = _b.sent();
                 user = new User_1.default({ name: name, email: email, password: hashedPassword });
                 return [4 /*yield*/, user.save()];
-            case 4:
+            case 3:
                 _b.sent();
-                res.status(201).json({ user: user });
-                return [3 /*break*/, 6];
-            case 5:
-                error_1 = _b.sent();
-                next(new HttpError_1.default("Server Error", 500));
-                return [3 /*break*/, 6];
-            case 6: return [2 /*return*/];
+                payload = { user: { id: user.id } };
+                jsonwebtoken_1.default.sign(payload, process.env.JWT_SECRET, { expiresIn: 360000 }, function (err, token) {
+                    if (err) {
+                        return next(err);
+                    }
+                    res.json({ user: token }).end();
+                    return;
+                });
+                return [2 /*return*/];
         }
     });
-}); };
+}); });
+exports.signinUser = helperMethods_1.errorWrapper(function (req, res, next) { return __awaiter(void 0, void 0, void 0, function () {
+    var _a, email, password, user, isMatch, payload;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
+            case 0:
+                _a = req.body, email = _a.email, password = _a.password;
+                return [4 /*yield*/, User_1.default.findOne({ email: email })];
+            case 1:
+                user = _b.sent();
+                if (!user) {
+                    return [2 /*return*/, next(new HttpError_1.default("Invalid Credentials"))];
+                }
+                isMatch = auth_methods_1.comparePassword(password, user.password);
+                if (!isMatch) {
+                    return [2 /*return*/, next(new HttpError_1.default("Invalid Credentials"))];
+                }
+                payload = {
+                    user: { id: user.id },
+                };
+                jsonwebtoken_1.default.sign(payload, process.env.JWT_SECRET, { expiresIn: 360000 }, function (err, token) {
+                    if (err) {
+                        return next(err);
+                    }
+                    res.json({ token: token });
+                });
+                return [2 /*return*/];
+        }
+    });
+}); });

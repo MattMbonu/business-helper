@@ -60,3 +60,20 @@ exports.hashPassword = function (password) { return __awaiter(void 0, void 0, vo
         }
     });
 }); };
+exports.comparePassword = function (password, userPassword) { return __awaiter(void 0, void 0, void 0, function () {
+    var isMatch, error_2;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                _a.trys.push([0, 2, , 3]);
+                return [4 /*yield*/, bcryptjs_1.default.compare(password, userPassword)];
+            case 1:
+                isMatch = _a.sent();
+                return [2 /*return*/, isMatch];
+            case 2:
+                error_2 = _a.sent();
+                throw new Error("Something went wrong");
+            case 3: return [2 /*return*/];
+        }
+    });
+}); };
